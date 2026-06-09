@@ -79,9 +79,9 @@ class Experiment:
             loss = 0
             for batch in batches:
                 weight = len(batch) / features.shape[0]
-                loss += model.calc_loss(z1[batch], z2[batch]) * weight
+                loss += model.calc_loss(z1[batch], z2[batch], temperature=args.temperature) * weight
         else:
-            loss = model.calc_loss(z1, z2)
+            loss = model.calc_loss(z1, z2, temperature=args.temperature)
 
         return loss, learned_adj
 
@@ -343,6 +343,9 @@ if __name__ == '__main__':
     # Structure Bootstrapping
     parser.add_argument('-tau', type=float, default=1)
     parser.add_argument('-c', type=int, default=0)
+
+    # Abalation
+    parser.add_argument('-temperature', type=float, default=0.2)
 
     args = parser.parse_args()
 
