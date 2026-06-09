@@ -77,6 +77,9 @@ def _build_parser():
     p.add_argument("-tau", type=float, default=1.0)
     p.add_argument("-c", type=int, default=0)
     p.add_argument("-gpu", type=int, default=0)
+
+    # Abalation
+    p.add_argument('-temperature', type=float, default=0.2)
     return p
 
 

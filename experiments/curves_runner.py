@@ -108,6 +108,9 @@ def main():
     p.add_argument("-c", type=int, default=0)
     p.add_argument("-gpu", type=int, default=0)
 
+    # Abalation
+    p.add_argument('-temperature', type=float, default=0.2)
+
     args = p.parse_args()
 
     # main.py's free-floating ``args`` is referenced as a module-level name from
