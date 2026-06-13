@@ -165,6 +165,8 @@ def run_single(args, log_path):
         sys.stdout = f
         try:
             sublime_main.args = args
+            assert sublime_main.args.temperature == args.temperature, \
+                f"args.temperature mismatch: {sublime_main.args.temperature} vs {args.temperature}"
             sublime_main.Experiment().train(args)
         finally:
             sys.stdout = orig_stdout
