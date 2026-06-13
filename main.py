@@ -46,7 +46,7 @@ class Experiment:
         return loss, accu
 
 
-    def loss_gcl(self, model, graph_learner, features, anchor_adj):
+    def loss_gcl(self, model, graph_learner, features, anchor_adj, args):
 
         # view 1: anchor graph
         if args.maskfeat_rate_anchor:
@@ -209,7 +209,7 @@ class Experiment:
                 model.train()
                 graph_learner.train()
 
-                loss, Adj = self.loss_gcl(model, graph_learner, features, anchor_adj)
+                loss, Adj = self.loss_gcl(model, graph_learner, features, anchor_adj, args)
 
                 optimizer_cl.zero_grad()
                 optimizer_learner.zero_grad()
