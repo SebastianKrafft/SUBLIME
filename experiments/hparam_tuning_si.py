@@ -154,6 +154,9 @@ def run_single(args, log_path):
         print(f"  [skip] {log_path}", flush=True)
         return
 
+    print(f"  [debug] temperature={args.temperature} tau={args.tau} c={args.c}",
+          flush=True)
+
     print(f"  [run]  {log_path}", flush=True)
     t0 = time.time()
 
