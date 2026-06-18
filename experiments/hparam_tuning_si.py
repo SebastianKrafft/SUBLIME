@@ -40,10 +40,12 @@ import argparse
 import copy
 import itertools
 import os
+import subprocess
 import sys
 import time
 
-import main as sublime_main
+# Use the paper environment Python if available, otherwise fall back to sys.executable
+PYTHON = os.environ.get('SUBLIME_PYTHON', sys.executable)
 
 # ------------------------------------------------------------------
 # Per-dataset base configurations (from scripts/cora_si.sh
@@ -148,28 +150,55 @@ def make_args(base_cfg, overrides):
 
 
 def run_single(args, log_path):
-    """Run one training configuration, redirecting stdout to log_path."""
+    """Run one training configuration as a subprocess writing stdout to log_path."""
     os.makedirs(os.path.dirname(log_path), exist_ok=True)
     if os.path.exists(log_path) and os.path.getsize(log_path) > 100:
         print(f"  [skip] {log_path}", flush=True)
         return
 
-    print(f"  [debug] temperature={args.temperature} tau={args.tau} c={args.c}",
-          flush=True)
-
     print(f"  [run]  {log_path}", flush=True)
     t0 = time.time()
 
-    orig_stdout = sys.stdout
-    with open(log_path, "w") as f:
-        sys.stdout = f
-        try:
-            sublime_main.args = args
-            assert sublime_main.args.temperature == args.temperature, \
-                f"args.temperature mismatch: {sublime_main.args.temperature} vs {args.temperature}"
-            sublime_main.Experiment().train(args)
-        finally:
-            sys.stdout = orig_stdout
+    cmd = [
+        PYTHON, 'main.py',
+        '-dataset',               str(args.dataset),
+        '-ntrials',               str(args.ntrials),
+        '-sparse',                str(args.sparse),
+        '-epochs_cls',            str(args.epochs_cls),
+        '-lr_cls',                str(args.lr_cls),
+        '-w_decay_cls',           str(args.w_decay_cls),
+        '-hidden_dim_cls',        str(args.hidden_dim_cls),
+        '-dropout_cls',           str(args.dropout_cls),
+        '-dropedge_cls',          str(args.dropedge_cls),
+        '-nlayers_cls',           str(args.nlayers_cls),
+        '-patience_cls',          str(args.patience_cls),
+        '-epochs',                str(args.epochs),
+        '-lr',                    str(args.lr),
+        '-w_decay',               str(args.w_decay),
+        '-hidden_dim',            str(args.hidden_dim),
+        '-rep_dim',               str(args.rep_dim),
+        '-proj_dim',              str(args.proj_dim),
+        '-dropout',               str(args.dropout),
+        '-dropedge_rate',         str(args.dropedge_rate),
+        '-nlayers',               str(args.nlayers),
+        '-type_learner',          str(args.type_learner),
+        '-k',                     str(args.k),
+        '-sim_function',          str(args.sim_function),
+        '-activation_learner',    str(args.activation_learner),
+        '-gsl_mode',              str(args.gsl_mode),
+        '-eval_freq',             str(args.eval_freq),
+        '-tau',                   str(args.tau),
+        '-c',                     str(args.c),
+        '-maskfeat_rate_learner', str(args.maskfeat_rate_learner),
+        '-maskfeat_rate_anchor',  str(args.maskfeat_rate_anchor),
+        '-contrast_batch_size',   str(args.contrast_batch_size),
+        '-downstream_task',       str(args.downstream_task),
+        '-temperature',           str(args.temperature),
+        '-gpu',                   str(args.gpu),
+    ]
+
+    with open(log_path, 'w') as f:
+        subprocess.run(cmd, stdout=f, stderr=subprocess.STDOUT)
 
     elapsed = time.time() - t0
     print(f"  [done] {elapsed/60:.1f} min", flush=True)
